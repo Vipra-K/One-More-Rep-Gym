@@ -1,15 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 
-export const supabase = createClient(
-  'https://vvxsiulnbdallsnjogeb.supabase.co',
-  'sb_publishable_cVVzId3P8oEgY0tCvLeaMA_QE7UtFp5',
-  {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variables.');
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false,
   },
-);
+});
 
 export const BLOG_BUCKET = 'blog-media';
 
