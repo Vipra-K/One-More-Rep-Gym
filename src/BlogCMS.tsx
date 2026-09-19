@@ -194,7 +194,7 @@ function PublicBlogList() {
 
   return (
     <div className="blog-page">
-      <header className="blog-top"><a href="#" className="blog-logo"><img src="/resources/logo.png" alt="" /> ONE MORE <span>REP</span></a><a href="#" className="blog-back"><ArrowLeft size={16} /> BACK TO WEBSITE</a></header>
+      <header className="blog-top"><a href="#" className="blog-logo"><img src="/images/logo.png" alt="" /> ONE MORE <span>REP</span></a><a href="#" className="blog-back"><ArrowLeft size={16} /> BACK TO WEBSITE</a></header>
       <main className="cms-public-list">
         <div className="cms-journal-head"><div><p className="section-tag">ONE MORE REP JOURNAL</p><h1>STORIES.<br /><span>TRAINING.</span><br />COMMUNITY.</h1><p>Events, workouts, challenges, transformations and moments from the studio.</p></div><div className="cms-search"><Search size={17} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search stories..." /></div></div>
         <div className="cms-category-bar"><button className={category === 'All' ? 'active' : ''} onClick={() => setCategory('All')}>ALL</button>{CATEGORIES.map((c) => <button key={c} className={category === c ? 'active' : ''} onClick={() => setCategory(c)}>{c}</button>)}</div>
@@ -208,7 +208,7 @@ function PublicBlogDetail({ slug }: { slug: string }) {
   const [post, setPost] = useState<Post | null>(null);
   useEffect(() => { loadPostBySlug(slug).then(setPost).catch((e) => console.error(e)); }, [slug]);
   if (!post) return <div className="blog-page"><header className="blog-top"><a href="#/blog" className="blog-back"><ArrowLeft size={16} /> ALL STORIES</a></header><div className="blog-empty"><h2>LOADING STORY...</h2></div></div>;
-  return <div className="blog-page"><header className="blog-top"><a href="#/blog" className="blog-logo"><img src="/resources/logo.png" alt="" /> ONE MORE <span>REP</span></a><a href="#/blog" className="blog-back"><ArrowLeft size={16} /> ALL STORIES</a></header><main className="cms-detail-wrap"><ArticleView post={post} /><div className="cms-detail-footer"><a href="#/blog">← BACK TO ALL STORIES</a></div></main></div>;
+  return <div className="blog-page"><header className="blog-top"><a href="#/blog" className="blog-logo"><img src="/images/logo.png" alt="" /> ONE MORE <span>REP</span></a><a href="#/blog" className="blog-back"><ArrowLeft size={16} /> ALL STORIES</a></header><main className="cms-detail-wrap"><ArticleView post={post} /><div className="cms-detail-footer"><a href="#/blog">← BACK TO ALL STORIES</a></div></main></div>;
 }
 
 function BlockToolbar({ addBlock }: { addBlock: (type: BlockType) => void }) {
@@ -302,7 +302,7 @@ function AdminLogin({ onSuccess }: { onSuccess: () => void }) {
     }
   };
 
-  return <div className="login-page"><div className="login-card"><a href="#" className="back"><ArrowLeft size={17} /> BACK TO WEBSITE</a><img src="/resources/logo.png" alt="One More Rep" /><p className="red">ADMIN ACCESS</p><h1>CONTENT <em>STUDIO.</em></h1><form onSubmit={submit}><label>USERNAME<input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" /></label><label>PASSWORD<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" /></label>{error && <div className="login-error">{error}</div>}<button className="admin-add">LOGIN <ArrowRight size={17} /></button></form><small className="dummy">Dummy credentials: <b>admin</b> / <b>admin123</b></small></div></div>;
+  return <div className="login-page"><div className="login-card"><a href="#" className="back"><ArrowLeft size={17} /> BACK TO WEBSITE</a><img src="/images/logo.png" alt="One More Rep" /><p className="red">ADMIN ACCESS</p><h1>CONTENT <em>STUDIO.</em></h1><form onSubmit={submit}><label>USERNAME<input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" /></label><label>PASSWORD<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" /></label>{error && <div className="login-error">{error}</div>}<button className="admin-add">LOGIN <ArrowRight size={17} /></button></form><small className="dummy">Dummy credentials: <b>admin</b> / <b>admin123</b></small></div></div>;
 }
 
 function AdminDashboard({ onExit }: { onExit: () => void }) {
@@ -445,7 +445,7 @@ function AdminDashboard({ onExit }: { onExit: () => void }) {
 
   return (
     <div className="cms-admin">
-      <header className="cms-admin-top"><div className="cms-admin-brand"><img src="/resources/logo.png" alt="" /><span>CONTENT STUDIO</span></div><div className="cms-admin-actions"><button onClick={() => setPreview(!preview)}><Eye size={16} /> {preview ? 'EDITOR' : 'PREVIEW'}</button><button onClick={() => save('draft')} disabled={saving}><Save size={16} /> SAVE DRAFT</button><button className="cms-publish" onClick={() => save(post.status === 'scheduled' ? 'scheduled' : 'published')} disabled={saving}><Check size={16} /> {saving ? 'SAVING...' : post.status === 'scheduled' ? 'SCHEDULE' : 'PUBLISH'}</button><button onClick={onExit}><LogOut size={16} /></button></div></header>
+      <header className="cms-admin-top"><div className="cms-admin-brand"><img src="/images/logo.png" alt="" /><span>CONTENT STUDIO</span></div><div className="cms-admin-actions"><button onClick={() => setPreview(!preview)}><Eye size={16} /> {preview ? 'EDITOR' : 'PREVIEW'}</button><button onClick={() => save('draft')} disabled={saving}><Save size={16} /> SAVE DRAFT</button><button className="cms-publish" onClick={() => save(post.status === 'scheduled' ? 'scheduled' : 'published')} disabled={saving}><Check size={16} /> {saving ? 'SAVING...' : post.status === 'scheduled' ? 'SCHEDULE' : 'PUBLISH'}</button><button onClick={onExit}><LogOut size={16} /></button></div></header>
       <main className="cms-admin-layout">
         <aside className="cms-post-list"><button className="cms-new-post" onClick={() => { setPost(emptyPost()); setEditingId(null); setPreview(false); }}>+ NEW STORY</button><div className="cms-list-title">ALL POSTS</div>{loading ? <p className="cms-muted">Loading...</p> : posts.map((p) => <button key={p.id} className={editingId === p.id ? 'selected' : ''} onClick={() => loadEditor(p.id!)}><span>{p.title}</span><small>{p.status.toUpperCase()}</small></button>)}</aside>
         <section className="cms-editor-shell">
