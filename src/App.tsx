@@ -1,16 +1,57 @@
 import { useEffect, useState } from 'react';
-import { ArrowDown, ArrowRight, Instagram, MapPin, Menu, Phone, X } from 'lucide-react';
-import { assetUrl, supabase } from './lib/supabase';
+import { ArrowDown, ArrowLeft, ArrowRight, Instagram, LogOut, MapPin, Menu, Phone, Plus, Trash2, X } from 'lucide-react';
+import { supabase } from './lib/supabase';
 import { BlogCMS } from './BlogCMS';
 
 const joinUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSf6W0aS1mhk2dgp-yCwJksjjo8yz7scC1BigZd6HT0GNSxysg/viewform?usp=publish-editor';
 
 const programs = [
-  ['Strength Training', assetUrl('resources/strength-training.png')],
-  ['Group Sessions', assetUrl('resources/yoga-classes.png')],
-  ['Weight Loss Program', assetUrl('resources/weight-loss.png')],
-  ['Rehabilitation Program', assetUrl('resources/rehab-program.png')],
+  ['Strength Training', '/resources/strength-training.png'],
+  ['Group Sessions', '/resources/yoga-classes.png'],
+  ['Weight Loss Program', '/resources/weight-loss.png'],
+  ['Rehabilitation Program', '/resources/rehab-program.png'],
 ];
+
+const seedBlogs: any[] = [];
+
+const BLOG_DB = 'omr_blog_db';
+const BLOG_STORE = 'blogs';
+
+function openBlogDb(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(BLOG_DB, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(BLOG_STORE)) {
+        db.createObjectStore(BLOG_STORE, { keyPath: 'id' });
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function readStoredBlogs(): Promise<any[] | null> {
+  const db = await openBlogDb();
+  return new Promise((resolve, reject) => {
+    const request = db.transaction(BLOG_STORE, 'readonly').objectStore(BLOG_STORE).getAll();
+    request.onsuccess = () => resolve(request.result.length ? request.result : null);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function writeStoredBlogs(blogs: any[]) {
+  const db = await openBlogDb();
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(BLOG_STORE, 'readwrite');
+    const store = tx.objectStore(BLOG_STORE);
+    store.clear();
+    blogs.forEach((blog) => store.put(blog));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error);
+  });
+}
 
 function useBlogs() {
   const [blogs, setBlogs] = useState<any[]>([]);
@@ -49,7 +90,7 @@ function PublicSite({ blogs }: { blogs: any[] }) {
       <div className="site-bg" />
       <header className="nav">
         <button className="brand" onClick={() => nav('home')}>
-          <img src={assetUrl('resources/logo.png" alt="One More Rep Logo" />
+          <img src="/resources/logo.png" alt="One More Rep Logo" />
           <span>ONE MORE <b>REP</b></span>
         </button>
 
@@ -123,18 +164,18 @@ function PublicSite({ blogs }: { blogs: any[] }) {
           <p className="center-copy">Recover. Rejuvenate. Perform. Our thermal recovery suite accelerates muscle repair and revitalizes your body after every session.</p>
           <div className="recovery-grid">
             <article className="recovery-card">
-              <img src={assetUrl('resources/steam-room.png" alt="Steam Recovery Suite" />
+              <img src="/resources/steam-room.png" alt="Steam Recovery Suite" />
               <div><small>THERMAL RECOVERY</small><h3>STEAM RECOVERY</h3><p>Heated thermal sauna engineered to dilate blood vessels, accelerate muscle relaxation, and flush metabolic waste.</p><a href="tel:+917338887968">+91 7338887968</a></div>
             </article>
             <article className="recovery-card">
-              <img src={assetUrl('resources/ice-bath.png" alt="Ice Bath Therapy" />
+              <img src="/resources/ice-bath.png" alt="Ice Bath Therapy" />
               <div><small>CRYOTHERAPY PLUNGE</small><h3>ICE BATH THERAPY</h3><p>Cold plunge therapy to suppress inflammation, relieve soreness, and supercharge central nervous system recovery.</p><a href="tel:+917338887968">+91 7338887968</a></div>
             </article>
           </div>
         </section>
 
         <section className="ai section">
-          <div className="ai-image"><img src={assetUrl('resources/hero-bg.png" alt="AI Body Composition Scanner" /></div>
+          <div className="ai-image"><img src="/resources/hero-bg.png" alt="AI Body Composition Scanner" /></div>
           <div className="ai-copy">
             <div className="section-tag">ADVANCED TECHNOLOGY</div>
             <h2>AI BODY COMPOSITION <span>ANALYSIS</span></h2>
@@ -152,7 +193,7 @@ function PublicSite({ blogs }: { blogs: any[] }) {
             <div className="philosophy-points"><span>✓ Boosted Energy</span><span>✓ Mental Clarity</span><span>✓ Daily Discipline</span><span>✓ Reduced Stress</span></div>
             <a className="primary" href={joinUrl} target="_blank" rel="noreferrer">START YOUR JOURNEY <ArrowRight size={18} /></a>
           </div>
-          <img src={assetUrl('resources/about-section.png" alt="Confident Athlete at One More Rep" />
+          <img src="/resources/about-section.png" alt="Confident Athlete at One More Rep" />
         </section>
 
         <section className="about-story section">
@@ -219,7 +260,7 @@ function PublicSite({ blogs }: { blogs: any[] }) {
         </section>
 
         <footer className="footer">
-          <div className="footer-brand"><img src={assetUrl('resources/logo.png" alt="One More Rep Logo" /><strong>ONE MORE <span>REP</span></strong><p>Train More. Push More. Be More.</p></div>
+          <div className="footer-brand"><img src="/resources/logo.png" alt="One More Rep Logo" /><strong>ONE MORE <span>REP</span></strong><p>Train More. Push More. Be More.</p></div>
           <div><h4>Navigation</h4><button onClick={() => nav('home')}>Home</button><button onClick={() => nav('about')}>About Us</button><button onClick={() => nav('programs')}>Programs</button><button onClick={() => nav('recovery')}>Recovery</button><a href="#/blog">Blog</a></div>
           <div><h4>Contact</h4><a href="tel:+917338887968">+91 7338887968</a><a href="https://wa.me/917338887968" target="_blank" rel="noreferrer">WhatsApp Studio</a><p>No.5, Green House, Opp. of A Ground,<br />Matha Complex, Kovaipudur – 641 042</p></div>
           <div><h4>Follow Us</h4><a href="https://www.instagram.com/onemorerepofficial2026" target="_blank" rel="noreferrer"><Instagram size={18} /> Instagram</a></div>
@@ -242,7 +283,7 @@ function getMediaItems(blog: any) {
 function BlogPage({ blogs }: { blogs: any[] }) {
   return (
     <div className="blog-page">
-      <header className="blog-top"><a href="#/" className="blog-logo"><img src={assetUrl('resources/logo.png" alt="" /> ONE MORE <span>REP</span></a><a href="#/" className="blog-back"><ArrowLeft size={16} /> BACK TO WEBSITE</a></header>
+      <header className="blog-top"><a href="#" className="blog-logo"><img src="/resources/logo.png" alt="" /> ONE MORE <span>REP</span></a><a href="#" className="blog-back"><ArrowLeft size={16} /> BACK TO WEBSITE</a></header>
       <main className="blog-main">
         <p className="section-tag">THIS WEEK AT ONE MORE REP</p>
         <h1>WEEKLY <span>UPDATES.</span></h1>
@@ -272,7 +313,7 @@ function BlogDetailPage({ blog }: { blog: any }) {
   const mediaItems = getMediaItems(blog);
   return (
     <div className="blog-page blog-detail-page">
-      <header className="blog-top"><a href="#/blog" className="blog-logo"><img src={assetUrl('resources/logo.png" alt="" /> ONE MORE <span>REP</span></a><a href="#/blog" className="blog-back"><ArrowLeft size={16} /> ALL UPDATES</a></header>
+      <header className="blog-top"><a href="#/blog" className="blog-logo"><img src="/resources/logo.png" alt="" /> ONE MORE <span>REP</span></a><a href="#/blog" className="blog-back"><ArrowLeft size={16} /> ALL UPDATES</a></header>
       <main className="blog-detail-main">
         <p className="section-tag">ONE MORE REP • WEEKLY UPDATE</p>
         <small className="blog-detail-date">{blog.date}</small>
@@ -291,29 +332,72 @@ function BlogDetailPage({ blog }: { blog: any }) {
   );
 }
 
+function Login({ onLogin }: { onLogin: () => void }) {
+  const [u, setU] = useState('');
+  const [p, setP] = useState('');
+  const [error, setError] = useState('');
 
-function getHashRoute() {
-  const raw = window.location.hash || '#/';
-  const path = raw.replace(/^#/, '') || '/';
-  if (path.length > 1 && path.endsWith('/')) return path.slice(0, -1);
-  return path;
+  return <div className="login-page"><div className="login-card"><a href="#" className="back"><ArrowLeft size={17} /> BACK TO WEBSITE</a><img src="/resources/logo.png" alt="One More Rep" /><p className="red">ADMIN ACCESS</p><h1>WELCOME <em>BACK.</em></h1><form onSubmit={(e) => { e.preventDefault(); if (u === 'admin' && p === 'admin123') { localStorage.setItem('omr_admin', '1'); onLogin(); } else setError('Invalid credentials'); }}><label>USERNAME<input value={u} onChange={(e) => setU(e.target.value)} /></label><label>PASSWORD<input type="password" value={p} onChange={(e) => setP(e.target.value)} /></label>{error && <div className="login-error">{error}</div>}<button className="admin-add">LOGIN <ArrowRight size={17} /></button></form><small className="dummy">Dummy credentials: <b>admin</b> / <b>admin123</b></small></div></div>;
+}
+
+function Admin({ blogs, setBlogs, onExit }: { blogs: any[]; setBlogs: (v: any[]) => void; onExit: () => void }) {
+  const [title, setTitle] = useState('');
+  const [excerpt, setExcerpt] = useState('');
+  const [mediaItems, setMediaItems] = useState<{ id: string; type: 'image' | 'video'; src: string; name: string }[]>([]);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !excerpt || mediaItems.length === 0) return;
+    const first = mediaItems[0];
+    setBlogs([{
+      id: Date.now().toString(),
+      title,
+      excerpt,
+      date: new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      mediaType: first.type,
+      media: first.src,
+      mediaItems,
+    }, ...blogs]);
+    setTitle('');
+    setExcerpt('');
+    setMediaItems([]);
+  };
+
+  const files = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files || []);
+    if (!selected.length) return;
+    Promise.all(selected.map((f) => new Promise<{ id: string; type: 'image' | 'video'; src: string; name: string }>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        type: f.type.startsWith('video') ? 'video' : 'image',
+        src: String(reader.result),
+        name: f.name,
+      });
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(f);
+    }))).then((items) => {
+      setMediaItems((current) => [...current, ...items]);
+      e.target.value = '';
+    });
+  };
+
+  return <div className="admin"><header className="admin-top"><div className="admin-brand"><img src="/resources/logo.png" alt="" /><span>ONE MORE REP</span><small>CONTENT ADMIN</small></div><button onClick={onExit}><LogOut size={16} /> LOG OUT</button></header><main className="admin-wrap"><p className="section-tag red">ADMIN DASHBOARD</p><h1>WEEKLY <em>UPDATES.</em></h1><div className="admin-grid"><form className="admin-form" onSubmit={submit}><div className="section-tag red">CREATE BLOG</div><label>Title<input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Saturday Strength Challenge" /></label><label>Update<textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Tell members what is happening this week..." /></label><label>Media<input type="file" accept="image/*,video/*" multiple onChange={files} /></label><p className="upload-help">Select any combination of images and videos. You can choose multiple files at once.</p>{mediaItems.length > 0 && <div className="upload-grid">{mediaItems.map((m) => <div className="upload-preview" key={m.id}>{m.type === 'video' ? <video src={m.src} controls /> : <img src={m.src} alt={m.name} />}<button type="button" onClick={() => setMediaItems((items) => items.filter((x) => x.id !== m.id))}><X size={14} /></button><small>{m.type.toUpperCase()}</small></div>)}</div>}<button className="admin-add" type="submit" disabled={!title || !excerpt || mediaItems.length === 0}><Plus size={17} /> PUBLISH UPDATE{mediaItems.length ? ` (${mediaItems.length})` : ''}</button></form><div className="admin-list"><div className="section-tag red">PUBLISHED UPDATES</div>{blogs.map((b) => <article className="admin-item" key={b.id}><div>{b.mediaType === 'video' ? <video src={b.media} muted /> : <img src={b.media} alt={b.title} />}</div><section><small>{b.date}</small><h3>{b.title}</h3><p>{b.excerpt}</p><button onClick={() => setBlogs(blogs.filter((x) => x.id !== b.id))}><Trash2 size={15} /> DELETE</button></section></article>)}</div></div></main></div>;
 }
 
 export default function App() {
-  const [blogs] = useBlogs();
-  const [route, setRoute] = useState(getHashRoute());
+  const [blogs, setBlogs] = useBlogs();
+  const [route, setRoute] = useState(window.location.hash);
+  const [logged, setLogged] = useState(localStorage.getItem('omr_admin') === '1');
+
   useEffect(() => {
-    const handleHashChange = () => setRoute(getHashRoute());
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    const h = () => setRoute(window.location.hash);
+    addEventListener('hashchange', h);
+    return () => removeEventListener('hashchange', h);
   }, []);
-  useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); }, [route]);
-  const exitAdmin = () => { localStorage.removeItem('omr_admin'); window.location.hash = '#/'; };
-  if (route === '/admin' || route === '/admin/login') return <BlogCMS mode="admin" onExit={exitAdmin} />;
-  if (route === '/blog') return <BlogCMS mode="list" />;
-  if (route.startsWith('/blog/')) {
-    const slug = decodeURIComponent(route.slice('/blog/'.length));
-    return slug ? <BlogCMS mode="detail" slug={slug} /> : <BlogCMS mode="list" />;
-  }
+
+  if (route === '#/admin/login') return <BlogCMS mode="admin" onExit={() => { localStorage.removeItem('omr_admin'); setLogged(false); window.location.hash = ''; }} />;
+  if (route === '#/blog') return <BlogCMS mode="list" />;
+  if (route.startsWith('#/blog/')) return <BlogCMS mode="detail" slug={decodeURIComponent(route.slice('#/blog/'.length))} />;
   return <PublicSite blogs={blogs} />;
 }
